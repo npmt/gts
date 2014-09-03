@@ -1,9 +1,22 @@
-<?php
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 class Graduates extends MY_Model {
     
     const DB_TABLE = 'graduates';
     const DB_TABLE_PK = 'GraduateId';
+    
+    function __construct()
+    {
+        parent::__construct();
+        date_default_timezone_set('Asia/Taipei');
+        $this->UpdatedOn = date('Y-m-d H:i:s');
+        $this->Picture = 'default-profile-image.png';
+    }
+    
+    public function set_profile_pic()
+    {
+        $this->db->update($this::DB_TABLE, array('Picture' => $this->Picture), array($this::DB_TABLE_PK => $this->{$this::DB_TABLE_PK}));
+    }
     
     /**
      * Graduate unique identifier.
@@ -53,12 +66,6 @@ class Graduates extends MY_Model {
      * @var string
      */
     public $Address;
-    
-    /**
-     * Graduate email address.
-     * @var int
-     */
-    public $EmailAddress;
     
     /**
      * Graduate civil status.
@@ -113,8 +120,27 @@ class Graduates extends MY_Model {
     public $CellphoneNo;
     
     /**
+     * User unique identifier.
+     * @var int
+     */
+    public $user_id;
+    
+    /**
+     * Graduate department unique identifier.
+     * @var int
+     */
+    public $DepartmentId;
+    
+    /**
      * Last updated.
      * @var datetime
      */
-    public $UpdateDate;
+    public $UpdatedOn;
+    
+    /**
+     * ID Picture location.
+     * @var string
+     */
+    public $Picture;
+    
 }
