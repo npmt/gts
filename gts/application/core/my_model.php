@@ -16,16 +16,20 @@ class MY_Model extends CI_Model {
      * Update record.
      */
     private function update() {
-        $this->db->update($this::DB_TABLE, $this, $this::DB_TABLE_PK);
+        $this->db->update($this::DB_TABLE, $this, array($this::DB_TABLE_PK => $this->{$this::DB_TABLE_PK}));
     }
     
     /**
      * Populate from an array or standard class.
      * @param mixed $row
      */
-    public function populate($row) {
+    public function populate($row, $post = 0) {
         foreach ($row as $key => $value) {
             $this->$key = $value;
+            if($post)
+            {
+                $_POST[$key] = $value;
+            }
         }
     }
     
@@ -33,11 +37,11 @@ class MY_Model extends CI_Model {
      * Load from the database.
      * @param int $id
      */
-    public function load($id) {
+    public function load($id, $post = 0) {
         $query = $this->db->get_where($this::DB_TABLE, array(
             $this::DB_TABLE_PK => $id,
         ));
-        $this->populate($query->row());
+        $this->populate($query->row(),$post);
     }
     
     /**
@@ -75,6 +79,23 @@ class MY_Model extends CI_Model {
         }
         else {
             $query = $this->db->get($this::DB_TABLE);
+        }
+        $ret_val = array();
+        $class = get_class($this);
+        foreach ($query->result() as $row) {
+            $model = new $class;
+            $model->populate($row);
+            $ret_val[$row->{$this::DB_TABLE_PK}] = $model;
+        }
+        return $ret_val;
+    }
+    
+    public function get_where($where = array(), $limit = 0, $offset = 0) {
+        if ($limit) {
+            $query = $this->db->get_where($this::DB_TABLE, $where, $limit, $offset);
+        }
+        else {
+            $query = $this->db->get_where($this::DB_TABLE, $where);
         }
         $ret_val = array();
         $class = get_class($this);
